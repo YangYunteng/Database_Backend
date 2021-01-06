@@ -5,14 +5,14 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 public class LoginRequest {
-    private int job_number;
+    private int jobNumber;
 
     private String password;
 
     @Autowired
 
-    public int getJob_number() {
-        return this.job_number;
+    public int getJobNumber() {
+        return this.jobNumber;
     }
 
     public String getPassword() {
@@ -23,7 +23,7 @@ public class LoginRequest {
         this.password = password;
     }
 
-    public void setJob_number(int job_number) {
-        this.job_number = job_number;
+    public void setJobNumber(int jobNumber) {
+        this.jobNumber = jobNumber;
     }
 }

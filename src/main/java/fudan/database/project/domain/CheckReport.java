@@ -18,7 +18,7 @@ public class CheckReport {
     @ManyToOne
     private Patient patient;
 
-    private int check_result;
+    private int checkResult;
 
     private LocalDate date;
 

@@ -19,5 +19,5 @@ public class Record {
 
     private int status;
 
-    private int check_result;
+    private int checkResult;
 }

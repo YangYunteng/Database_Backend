@@ -15,11 +15,11 @@ public class Bed {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private int bed_number;
+    private int bedNumber;
 
-    private int room_number;
+    private int roomNumber;
 
-    private int ward_number;
+    private int wardNumber;
 
     private int status;//0 空 1 有
 

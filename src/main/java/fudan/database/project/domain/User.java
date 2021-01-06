@@ -19,19 +19,19 @@ public class User {
 
     private int type;// 1 代表医生 2 代表护士长 3 代表病房护士 4代表急诊护士
 
-    private int ward_number;
+    private int wardNumber;
 
     private String telephone;
 
     public User() {
     }
 
-    public User(int jobNumber, String name, String password, int type, int ward_number, String telephone) {
+    public User(int jobNumber, String name, String password, int type, int wardNumber, String telephone) {
         this.jobNumber = jobNumber;
         this.name = name;
         this.password = password;
         this.type = type;
-        this.ward_number = ward_number;
+        this.wardNumber = wardNumber;
         this.telephone = telephone;
     }
 }
