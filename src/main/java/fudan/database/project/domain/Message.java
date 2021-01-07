@@ -14,8 +14,7 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne
-    private User user;
+    private int userId;
 
     private String message;
 

@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.util.HtmlUtils;
 
 import java.util.HashMap;
 
@@ -29,8 +28,8 @@ public class LoginController {
     @ResponseBody
     public ResponseEntity<HashMap<String, Object>> login(@RequestBody LoginRequest loginRequest) {
         int job_number = loginRequest.getJobNumber();
-        User user = userService.getByJob_Number(job_number);
-        System.out.println(loginRequest.getJobNumber()+"  "+ HtmlUtils.htmlEscape(loginRequest.getPassword()));
+        User user = userService.findByJobNumber(job_number);
+        //System.out.println(loginRequest.getJobNumber()+"  "+ HtmlUtils.htmlEscape(loginRequest.getPassword()));
         HashMap<String, Object> map = new HashMap<>();
 
         if (!userService.isExist(job_number)) {

@@ -5,7 +5,6 @@ import org.springframework.stereotype.Controller;
 
 @Data
 @Controller
-public class LoginRequest {
-    private int jobNumber;
-    private String password;
+public class BedInfoRequest {
+    private int wardNumber;
 }

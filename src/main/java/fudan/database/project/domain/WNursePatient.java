@@ -7,14 +7,20 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "isolation_patient")
+@Table(name = "wnurse_patient")
 @JsonIgnoreProperties({"handler", "hibernateLazyInitializer"})
-public class IsolationPatient {
+public class WNursePatient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    private int jobNumber;
+    private int patientId;
 
-    private String name;
+    public WNursePatient() {
+    }
 
-    private int grade;
+    public WNursePatient(int jobNumber, int patientId) {
+        this.jobNumber = jobNumber;
+        this.patientId = patientId;
+    }
 }

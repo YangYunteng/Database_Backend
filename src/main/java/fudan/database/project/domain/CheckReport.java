@@ -5,6 +5,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.Date;
 
 @Data
 @Entity
@@ -15,12 +16,13 @@ public class CheckReport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne
-    private Patient patient;
+    private int patientId;
 
     private int checkResult;
 
-    private LocalDate date;
+    private Date date;
 
     private int grade;
+
+    public CheckReport(){}
 }

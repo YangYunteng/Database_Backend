@@ -1,0 +1,26 @@
+package fudan.database.project.service;
+
+import fudan.database.project.domain.WNursePatient;
+import fudan.database.project.repository.WNursePatientRepository;
+import lombok.Data;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Data
+@Service
+public class WNursePatientService {
+    private WNursePatientRepository wNursePatientRepository;
+
+    WNursePatientService(WNursePatientRepository wNursePatientRepository) {
+        this.wNursePatientRepository = wNursePatientRepository;
+    }
+
+    public List<WNursePatient> findAllByJobNumber(int jobNumber) {
+        return wNursePatientRepository.findAllByJobNumber(jobNumber);
+    }
+
+    public WNursePatient findByPatientId(int patientId) {
+        return wNursePatientRepository.findByPatientId(patientId);
+    }
+}

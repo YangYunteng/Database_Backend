@@ -14,8 +14,7 @@ public class Patient {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToOne
-    private Bed bed;
+    private int bedId;
 
     private String name;
 
@@ -23,4 +22,16 @@ public class Patient {
 
     private int status; //生命体征 1 出院 2 治疗中 3 死亡
 
+    private int jobNumber;
+
+    public Patient() {
+    }
+
+    public Patient(int bedId, String name, int grade, int status, int jobNumber) {
+        this.bedId = bedId;
+        this.name = name;
+        this.grade = grade;
+        this.status = status;
+        this.jobNumber = jobNumber;
+    }
 }

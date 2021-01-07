@@ -2,6 +2,7 @@ package fudan.database.project.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+
 import javax.persistence.Id;
 
 import javax.persistence.*;
@@ -23,7 +24,17 @@ public class Bed {
 
     private int status;//0 空 1 有
 
-    @OneToOne
-    private Patient patient;
+    private int patientId;
+
+    public Bed() {
+    }
+
+    public Bed(int bedNumber, int roomNumber, int wardNumber, int status, int patientId) {
+        this.bedNumber = bedNumber;
+        this.roomNumber = roomNumber;
+        this.wardNumber = wardNumber;
+        this.status = status;
+        this.patientId = patientId;
+    }
 
 }

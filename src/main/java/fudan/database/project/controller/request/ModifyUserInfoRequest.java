@@ -5,7 +5,11 @@ import org.springframework.stereotype.Controller;
 
 @Data
 @Controller
-public class LoginRequest {
+public class ModifyUserInfoRequest {
     private int jobNumber;
-    private String password;
+    private String name;
+    private String oldPass;
+    private String newPass;
+    private String telephone;
+
 }
