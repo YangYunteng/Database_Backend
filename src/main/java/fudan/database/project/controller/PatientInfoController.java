@@ -1,9 +1,12 @@
 package fudan.database.project.controller;
 
+import fudan.database.project.controller.request.LeaveHospitalRequest;
 import fudan.database.project.controller.request.PatientQueryRequest;
 import fudan.database.project.controller.request.PatientRegisterRequest;
+import fudan.database.project.controller.request.UpdatePatientInfoRequest;
 import fudan.database.project.domain.*;
 import fudan.database.project.service.*;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,19 +20,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Data
 @Controller
-public class PatientRegisterController {
+public class PatientInfoController {
     private PatientService patientService;
     private UserService userService;
     private BedService bedService;
     private WNursePatientService wNursePatientService;
+    private RecordService recordService;
 
     @Autowired
-    PatientRegisterController(PatientService patientService, UserService userService, BedService bedService, WNursePatientService wNursePatientService) {
+    PatientInfoController(PatientService patientService, UserService userService, BedService bedService, WNursePatientService wNursePatientService, RecordService recordService) {
         this.patientService = patientService;
         this.userService = userService;
         this.bedService = bedService;
         this.wNursePatientService = wNursePatientService;
+        this.recordService = recordService;
     }
 
     @CrossOrigin
@@ -91,7 +97,7 @@ public class PatientRegisterController {
         int wardNumber = user.getWardNumber();
         int type = user.getType();
         HashMap<String, Object> map = new HashMap<>();
-        List<Patient> patients;
+        List<Patient> patients = new ArrayList<>();
         switch (queryCondition) {
             case 0:
                 patients = queryPatientWithNoCondition(wardNumber, type, jobNumber);
@@ -127,10 +133,43 @@ public class PatientRegisterController {
                 patients = queryPatientWithNoCondition(wardNumber, type, jobNumber);
                 break;
         }
-        map.put("patientData", patients);
+        List<PatientInfo> patientInfos = new ArrayList<>();
+        if (patients != null) {
+            for (Patient patient : patients) {
+                int id = patient.getId();
+                String name = patient.getName();
+                int grade = patient.getGrade();
+                int status = patient.getStatus();
+                String bedInfo = "在隔离区";
+                String wNurseName = "尚未安排";
+                int temp_jobNumber = -1;
+                if (patient.getBedId() != -1) {
+                    Bed bed = bedService.findById(patient.getBedId());
+                    switch (bed.getWardNumber()) {
+                        case 1:
+                            bedInfo += "轻度治疗区 ";
+                            break;
+                        case 2:
+                            bedInfo += "中度治疗区 ";
+                            break;
+                        case 3:
+                            bedInfo += "重度治疗区 ";
+                            break;
+                    }
+                    bedInfo += bed.getRoomNumber() + "房" + " " + bed.getBedNumber();
+                    wNurseName = userService.findByJobNumber(patient.getJobNumber()).getName();
+                    temp_jobNumber = patient.getJobNumber();
+                }
+                PatientInfo patientInfo = new PatientInfo(id, bedInfo, name, grade, status, wNurseName, temp_jobNumber);
+                patientInfos.add(patientInfo);
+            }
+        }
+
+        map.put("patientData", patientInfos);
         map.put("result", 1);
         return ResponseEntity.ok(map);
     }
+
 
     //无筛选查询 0
     private List<Patient> queryPatientWithNoCondition(int wardNumber, int type, int jobNumber) {
@@ -213,5 +252,94 @@ public class PatientRegisterController {
     //根据病情
     private List<Patient> queryPatientByGrade(int grade) {
         return patientService.findAllByGrade(grade);
+    }
+
+
+    @CrossOrigin
+    @PostMapping("/updatePatientInfo")
+    @ResponseBody
+    public ResponseEntity<HashMap<String, Object>> updatePatientInfo(@RequestBody UpdatePatientInfoRequest updatePatientInfoRequest) {
+        int grade = updatePatientInfoRequest.getGrade();
+        int status = updatePatientInfoRequest.getStatus();
+        int patientId = updatePatientInfoRequest.getPatientID();
+        Patient patient = patientService.findById(patientId);
+        if (status == 3) {
+            //将病床和病人分离
+            Bed bed = bedService.findById(patient.getBedId());
+            bed.setStatus(0);
+            bed.setPatientId(-1);
+            bedService.getBedRepository().save(bed);
+
+            patient.setJobNumber(-1);
+            //将关系移除
+            wNursePatientService.deleteByPatientId(patientId);
+        }
+
+        //病人死去将nurse工号设置为-1
+        patient.setGrade(grade);
+        patient.setStatus(status);
+        //系统开始自动分配病房
+        patientService.AutoReferral();
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("message", "修改成功");
+        map.put("result", 1);
+        return ResponseEntity.ok(map);
+    }
+
+    @CrossOrigin
+    @PostMapping("/leaveHospital")
+    @ResponseBody
+    public ResponseEntity<HashMap<String, Object>> updatePatientInfo(@RequestBody LeaveHospitalRequest leaveHospitalRequest) {
+        HashMap<String, Object> map = new HashMap<>();
+        if (canLeaveHospital(leaveHospitalRequest.getPatientID())) {
+            map.put("message", "成功出院");
+            map.put("result", 1);
+        } else {
+            map.put("message", "不满足出院条件");
+            map.put("result", 1);
+        }
+        return ResponseEntity.ok(map);
+    }
+
+    //还要判断是否可以出院
+    private boolean canLeaveHospital(int patientId) {
+        List<Record> records = recordService.findByPatientId(patientId);
+        int size = 0;
+        for (Record record : records) {
+            size++;
+        }
+        if (size < 3) {
+            return false;
+        }
+        for (int i = size - 1; i > 0; i--) {
+            if (records.get(i).getTemperature() > 37.3) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Data
+    class PatientInfo {
+        private int id;
+        private String bed;
+        private String name;
+        private int grade;
+        private int status;
+        private String wNurseName;
+        private int jobNumber;
+
+        PatientInfo() {
+        }
+
+        PatientInfo(int id, String bed, String name, int grade, int status, String wNurseName, int jobNumber) {
+            this.id = id;
+            this.bed = bed;
+            this.name = name;
+            this.grade = grade;
+            this.status = status;
+            this.wNurseName = wNurseName;
+            this.jobNumber = jobNumber;
+        }
     }
 }

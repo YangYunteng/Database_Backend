@@ -11,6 +11,8 @@ import java.util.List;
 public interface BedRepository extends JpaRepository<Bed, Integer> {
     Bed findByBedNumberAndRoomNumberAndWardNumber(int bedNumber, int roomNumber, int wardNumber);
 
+    Bed findById(int bedId);
+
     List<Bed> findAllByWardNumber(int wardNumber);
 
     List<Bed> findAllByWardNumberAndStatus(int wardNumber, int status);

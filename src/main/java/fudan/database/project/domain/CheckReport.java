@@ -22,7 +22,12 @@ public class CheckReport {
 
     private Date date;
 
-    private int grade;
+    public CheckReport() {
+    }
 
-    public CheckReport(){}
+    public CheckReport(int patientId, int checkResult, Date date) {
+        this.patientId = patientId;
+        this.checkResult = checkResult;
+        this.date = date;
+    }
 }

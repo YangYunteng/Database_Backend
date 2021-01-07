@@ -11,4 +11,6 @@ public interface WNursePatientRepository extends JpaRepository<WNursePatient, In
     List<WNursePatient> findAllByJobNumber(int jobNumber);
 
     WNursePatient findByPatientId(int patientId);
+
+    int deleteByPatientId(int patientId);
 }

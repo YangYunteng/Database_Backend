@@ -10,6 +10,8 @@ import java.util.List;
 public interface PatientRepository extends JpaRepository<Patient, Integer> {
     Patient findById(int id);
 
+    List<Patient> findAllByBedId(int bedId);
+
     List<Patient> findAllByJobNumber(int jobNumber);
 
     List<Patient> findAllByStatus(int status);

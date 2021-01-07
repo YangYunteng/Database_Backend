@@ -46,17 +46,17 @@ public class NurseInfoController {
             String telephone = user.getTelephone();
 
             List<WNursePatient> wNursePatients = wNursePatientService.findAllByJobNumber(jobNumber);
-            StringBuilder patients = new StringBuilder();
+            String[] patients = new String[wNursePatients.size()];
 
             if (wNursePatients.size() > 0) {
+                int count = 0;
                 for (WNursePatient wNursePatient : wNursePatients) {
-                    patients.append(patientService.findById(wNursePatient.getPatientId()).getName());
-                    patients.append("  ");
+                    patients[count] = patientService.findById(wNursePatient.getId()).getName();
                 }
             }
 //            WNurse wNurse = wNurseService.findByUser(user);
 //           List<Patient> patients = wNurse.getPatients();
-            WNurseInfo wNurseInfo = new WNurseInfo(jobNumber, name, telephone, patients.toString());
+            WNurseInfo wNurseInfo = new WNurseInfo(jobNumber, name, telephone, patients);
             wWNurseInfos.add(wNurseInfo);
         }
         HashMap<String, Object> map = new HashMap<>();
@@ -85,9 +85,9 @@ public class NurseInfoController {
         private int jobNumber;
         private String name;
         private String telephone;
-        private String patients;
+        private String[] patients;
 
-        WNurseInfo(int jobNumber, String name, String telephone, String patients) {
+        WNurseInfo(int jobNumber, String name, String telephone, String[] patients) {
             this.jobNumber = jobNumber;
             this.name = name;
             this.telephone = telephone;

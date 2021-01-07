@@ -16,6 +16,19 @@ public class BedService {
         this.bedRepository = bedRepository;
     }
 
+    public int wardOfBed(int bedId) {
+        return findById(bedId).getWardNumber();
+    }
+
+    public Bed findById(int bedId) {
+        return bedRepository.findById(bedId);
+    }
+
+    public boolean existBedEmpty(int wardNumber) {
+        List<Bed> beds = findAllByWardNumberAndStatus(wardNumber, 0);
+        return beds.size() > 0;
+    }
+
     public Bed findByBedNumberAndRoomNumberAndWardNumber(int bedNumber, int roomNumber, int wardNumber) {
         return bedRepository.findByBedNumberAndRoomNumberAndWardNumber(bedNumber, roomNumber, wardNumber);
     }

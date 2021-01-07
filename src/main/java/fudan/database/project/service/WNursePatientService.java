@@ -23,4 +23,12 @@ public class WNursePatientService {
     public WNursePatient findByPatientId(int patientId) {
         return wNursePatientRepository.findByPatientId(patientId);
     }
+
+    public int patientNumberOfWNurse(int jobNumber) {
+        return wNursePatientRepository.findAllByJobNumber(jobNumber).size();
+    }
+
+    public int deleteByPatientId(int patientId) {
+        return wNursePatientRepository.deleteByPatientId(patientId);
+    }
 }

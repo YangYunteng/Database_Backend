@@ -21,19 +21,16 @@ public class Record {
 
     private int status;
 
-    private int checkResult;
-
     private Date date;
 
     public Record() {
     }
 
-    public Record(int patientId, float temperature, String symptoms, int status, int checkResult, Date date) {
+    public Record(int patientId, float temperature, String symptoms, int status, Date date) {
         this.patientId = patientId;
         this.temperature = temperature;
         this.symptoms = symptoms;
         this.status = status;
-        this.checkResult = checkResult;
         this.date = date;
     }
 }

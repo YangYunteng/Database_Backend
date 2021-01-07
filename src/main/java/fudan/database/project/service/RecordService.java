@@ -18,5 +18,7 @@ public class RecordService {
         this.recordRepository = recordRepository;
     }
 
-
+    public List<Record> findByPatientId(int patientId) {
+        return recordRepository.findByPatientId(patientId);
+    }
 }

@@ -26,24 +26,24 @@ public class ProjectApplication {
                 final int HNURSE_NUM = 1;
                 final int WNURSE_NUM = 3;
                 final int ENURSE_NUM = 1;
-                int jobNumber = 111111;
+                int jobNumber = 1;
                 final String telepone = "13853725666";
                 for (int i = 0; i < WARD_NUM; i++) {
                     for (int j = 0; j < DOC_NUM; j++) {
                         if (userRepository.findByJobNumber(jobNumber) == null) {
-                            userRepository.save(new User(jobNumber, "doctor" + (i + 1), "12345", 1, (i + 1), telepone));
+                            userRepository.save(new User("doctor" + (i + 1), "12345", 1, (i + 1), telepone));
                         }
                         jobNumber++;
                     }
                     for (int j = 0; j < HNURSE_NUM; j++) {
                         if (userRepository.findByJobNumber(jobNumber) == null) {
-                            userRepository.save(new User(jobNumber, "hnurse" + (i + 1), "12345", 2, (i + 1), telepone));
+                            userRepository.save(new User("hnurse" + (i + 1), "12345", 2, (i + 1), telepone));
                         }
                         jobNumber++;
                     }
                     for (int j = 0; j < WNURSE_NUM; j++) {
                         if (userRepository.findByJobNumber(jobNumber) == null) {
-                            User user = new User(jobNumber, "wnurse" + (i * 3 + j + 1), "12345", 3, (i + 1), telepone);
+                            User user = new User("wnurse" + (i * 3 + j + 1), "12345", 3, (i + 1), telepone);
                             userRepository.save(user);
                         }
                         jobNumber++;
@@ -51,7 +51,7 @@ public class ProjectApplication {
                 }
                 for (int i = 0; i < ENURSE_NUM; i++) {
                     if (userRepository.findByJobNumber(jobNumber) == null) {
-                        userRepository.save(new User(jobNumber, "enurse1", "12345", 4, (i + 1), telepone));
+                        userRepository.save(new User("enurse1", "12345", 4, (i + 1), telepone));
                     }
                 }
 
