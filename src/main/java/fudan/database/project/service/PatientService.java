@@ -144,9 +144,12 @@ public class PatientService {
         }
         long lastTime = records.get(size - 1).getDate().getTime();
         int mark = 0;
+
         for (int i = size - 2; i >= 0; i--) {
             long startTime = records.get(i).getDate().getTime();
+            System.out.println(lastTime - startTime);
             if (lastTime - startTime > 0 && lastTime - startTime <= 24 * 60 * 60 * 1000 && records.get(i).getTemperature() < 37.3) {
+                lastTime = startTime;
                 mark++;
             } else {
                 return false;
@@ -155,6 +158,7 @@ public class PatientService {
                 break;
             }
         }
+        System.out.println("checkReports");
         List<CheckReport> checkReports = checkReportService.findAllPatientID(patientId);
         checkReports.sort(new Comparator<CheckReport>() {
             @Override

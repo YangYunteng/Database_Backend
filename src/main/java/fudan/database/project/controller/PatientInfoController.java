@@ -166,6 +166,7 @@ public class PatientInfoController {
         }
 
         map.put("patientData", patientInfos);
+        map.put("message", "筛选成功");
         map.put("result", 1);
         return ResponseEntity.ok(map);
     }
@@ -183,11 +184,11 @@ public class PatientInfoController {
                 beds = bedService.findAllByWardNumberAndStatus(wardNumber, 1);
                 break;
             case 3:
-                beds = bedService.findAllByWardNumberAndStatus(wardNumber, 1);
-                for (Bed bed : beds) {
+                List<Bed> tempBeds = bedService.findAllByWardNumberAndStatus(wardNumber, 1);
+                for (Bed bed : tempBeds) {
                     WNursePatient wNursePatient = wNursePatientService.findByPatientId(bed.getPatientId());
-                    if (wNursePatient.getJobNumber() != jobNumber) {
-                        beds.remove(bed);
+                    if (wNursePatient.getJobNumber() == jobNumber) {
+                        beds.add(bed);
                     }
                 }
                 break;

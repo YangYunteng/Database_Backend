@@ -19,7 +19,6 @@ public class MessageService {
     public List<Message> findAllByJobNumber(int jobNumber) {
         return messageRepository.findAllByJobNumber(jobNumber);
     }
-
     public Message findById(int messageID) {
         return messageRepository.findById(messageID);
     }

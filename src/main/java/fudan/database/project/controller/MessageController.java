@@ -32,7 +32,7 @@ public class MessageController {
     public ResponseEntity<HashMap<String, Object>> deleteMessage(@RequestBody DeleteMessageRequest deleteMessageRequest) {
         int messageID = deleteMessageRequest.getMessageID();
         Message message = messageService.findById(messageID);
-        message.setStatus(1);
+        message.setStatus(0);
         messageService.getMessageRepository().save(message);
         HashMap<String, Object> map = new HashMap<>();
         map.put("message", "已读取");

@@ -32,10 +32,11 @@ public class NurseManageController {
     private WNursePatientService wNursePatientService;
 
     @Autowired
-    NurseManageController(UserService userService, BedService bedService, PatientService patientService) {
+    NurseManageController(UserService userService, BedService bedService, PatientService patientService, WNursePatientService wNursePatientService) {
         this.userService = userService;
         this.bedService = bedService;
         this.patientService = patientService;
+        this.wNursePatientService = wNursePatientService;
     }
 
     @CrossOrigin

@@ -52,6 +52,7 @@ public class NurseInfoController {
                 int count = 0;
                 for (WNursePatient wNursePatient : wNursePatients) {
                     patients[count] = patientService.findById(wNursePatient.getPatientId()).getName();
+                    count++;
                 }
             }
 //            WNurse wNurse = wNurseService.findByUser(user);
@@ -107,8 +108,6 @@ public class NurseInfoController {
             this.telephone = telephone;
         }
     }
-
-
 }
 
 
