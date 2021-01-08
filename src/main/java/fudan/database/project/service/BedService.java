@@ -44,4 +44,8 @@ public class BedService {
     public List<Bed> findAllByStatus(int status) {
         return bedRepository.findAllByStatus(status);
     }
+
+    public List<Bed> findAllFreeBeds(int wardNumber) {
+        return bedRepository.findAllByWardNumberAndStatus(wardNumber, 0);
+    }
 }

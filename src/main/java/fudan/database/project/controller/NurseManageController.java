@@ -2,9 +2,11 @@ package fudan.database.project.controller;
 
 import com.sun.org.apache.bcel.internal.generic.NEW;
 import fudan.database.project.controller.request.AddWNurseRequest;
+import fudan.database.project.controller.request.DeleteNurseRequest;
 import fudan.database.project.domain.Bed;
 import fudan.database.project.domain.Patient;
 import fudan.database.project.domain.User;
+import fudan.database.project.domain.WNursePatient;
 import fudan.database.project.service.BedService;
 import fudan.database.project.service.PatientService;
 import fudan.database.project.service.UserService;
@@ -51,8 +53,26 @@ public class NurseManageController {
         HashMap<String, Object> map = new HashMap<>();
         map.put("message", "添加成功");
         map.put("result", 1);
+        patientService.AutoReferral();
         return ResponseEntity.ok(map);
     }
 
+    @CrossOrigin
+    @PostMapping("/deleteNurse")
+    @ResponseBody
+    public ResponseEntity<HashMap<String, Object>> deleteWNurse(@RequestBody DeleteNurseRequest deleteNurseRequest) {
+        int jobNumber = deleteNurseRequest.getJobNumber();
+        List<WNursePatient> wNursePatients = wNursePatientService.findAllByJobNumber(jobNumber);
+        HashMap<String, Object> map = new HashMap<>();
+        if (wNursePatients.size() > 0) {
+            map.put("message", "护士有病人，无法删除");
+            map.put("result", 0);
+        } else {
+            userService.deleteByJobNumber(jobNumber);
+            map.put("message", "删除成功");
+            map.put("result", 1);
+        }
+        return ResponseEntity.ok(map);
+    }
 
 }

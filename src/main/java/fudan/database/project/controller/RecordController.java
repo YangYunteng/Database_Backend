@@ -28,6 +28,7 @@ public class RecordController {
     @Autowired
     RecordController(RecordService recordService, CheckReportService checkReportService) {
         this.recordService = recordService;
+        this.checkReportService = checkReportService;
     }
 
     @CrossOrigin

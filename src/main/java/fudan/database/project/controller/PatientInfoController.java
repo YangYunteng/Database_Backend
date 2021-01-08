@@ -1,12 +1,10 @@
 package fudan.database.project.controller;
 
-import fudan.database.project.controller.request.LeaveHospitalRequest;
-import fudan.database.project.controller.request.PatientQueryRequest;
-import fudan.database.project.controller.request.PatientRegisterRequest;
-import fudan.database.project.controller.request.UpdatePatientInfoRequest;
+import fudan.database.project.controller.request.*;
 import fudan.database.project.domain.*;
 import fudan.database.project.service.*;
 import lombok.Data;
+import org.hibernate.annotations.Check;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,9 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.HtmlUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Data
 @Controller
@@ -28,14 +24,18 @@ public class PatientInfoController {
     private BedService bedService;
     private WNursePatientService wNursePatientService;
     private RecordService recordService;
+    private CheckReportService checkReportService;
+    private MessageService messageService;
 
     @Autowired
-    PatientInfoController(PatientService patientService, UserService userService, BedService bedService, WNursePatientService wNursePatientService, RecordService recordService) {
+    PatientInfoController(PatientService patientService, UserService userService, BedService bedService, WNursePatientService wNursePatientService, RecordService recordService, CheckReportService checkReportService, MessageService messageService) {
         this.patientService = patientService;
         this.userService = userService;
         this.bedService = bedService;
         this.wNursePatientService = wNursePatientService;
         this.recordService = recordService;
+        this.checkReportService = checkReportService;
+        this.messageService = messageService;
     }
 
     @CrossOrigin
@@ -44,7 +44,6 @@ public class PatientInfoController {
     public ResponseEntity<HashMap<String, Object>> patientRegister(@RequestBody PatientRegisterRequest patientRegisterRequest) {
         String patientName = patientRegisterRequest.getName();
         int wardNumber = patientRegisterRequest.getGrade();
-        patientName = HtmlUtils.htmlEscape(patientName);
         HashMap<String, Object> map = new HashMap<>();
         List<User> wnurses = userService.findAllByWardNumberAndType(wardNumber, 3);
         User wNurse = null;
@@ -91,6 +90,7 @@ public class PatientInfoController {
     @PostMapping("/patientInfo")
     @ResponseBody
     public ResponseEntity<HashMap<String, Object>> queryPatientInfo(@RequestBody PatientQueryRequest patientQueryRequest) {
+
         int jobNumber = patientQueryRequest.getJobNumber();
         int queryCondition = patientQueryRequest.getQueryCondition();
         User user = userService.findByJobNumber(jobNumber);
@@ -263,22 +263,11 @@ public class PatientInfoController {
         int status = updatePatientInfoRequest.getStatus();
         int patientId = updatePatientInfoRequest.getPatientID();
         Patient patient = patientService.findById(patientId);
-        if (status == 3) {
-            //将病床和病人分离
-            Bed bed = bedService.findById(patient.getBedId());
-            bed.setStatus(0);
-            bed.setPatientId(-1);
-            bedService.getBedRepository().save(bed);
-
-            patient.setJobNumber(-1);
-            //将关系移除
-            wNursePatientService.deleteByPatientId(patientId);
-        }
-
-        //病人死去将nurse工号设置为-1
-        patient.setGrade(grade);
         patient.setStatus(status);
-        //系统开始自动分配病房
+        patient.setGrade(grade);
+        if (status == 3) {
+            patientService.patientDead(patient);
+        }
         patientService.AutoReferral();
         HashMap<String, Object> map = new HashMap<>();
         map.put("message", "修改成功");
@@ -287,37 +276,58 @@ public class PatientInfoController {
     }
 
     @CrossOrigin
-    @PostMapping("/leaveHospital")
+    @PostMapping("/checkByDoctor")
     @ResponseBody
-    public ResponseEntity<HashMap<String, Object>> updatePatientInfo(@RequestBody LeaveHospitalRequest leaveHospitalRequest) {
+    public ResponseEntity<HashMap<String, Object>> checkByDoctor(@RequestBody CheckByDoctorRequest checkByDoctorRequest) {
+        int patientID = checkByDoctorRequest.getPatientID();
+        int checkResult = checkByDoctorRequest.getCheckResult();
+        Date date = checkByDoctorRequest.getDate();
+        checkReportService.getCheckReportRepository().save(new CheckReport(patientID, checkResult, date));
         HashMap<String, Object> map = new HashMap<>();
-        if (canLeaveHospital(leaveHospitalRequest.getPatientID())) {
-            map.put("message", "成功出院");
-            map.put("result", 1);
-        } else {
-            map.put("message", "不满足出院条件");
-            map.put("result", 1);
+        map.put("message", "添加成功");
+        map.put("result", 1);
+        if (patientService.canLeaveHospital(patientID)) {
+            Patient patient = patientService.findById(patientID);
+            Bed bed = bedService.findById(patientID);
+            int wardNumber = bed.getWardNumber();
+            User user = userService.findByWardNumberAndType(wardNumber, 1);
+            Message message = new Message(user.getJobNumber(), 1);
+            if (wardNumber == 1) {
+                message.setMessage("ID: " + patient.getId() + " Name: " + patient.getName() + " 满足出院条件");
+            } else {
+                message.setMessage("ID: " + patient.getId() + " Name: " + patient.getName() + " 病情好转可以考虑降级");
+            }
+            messageService.getMessageRepository().save(message);
         }
         return ResponseEntity.ok(map);
     }
 
-    //还要判断是否可以出院
-    private boolean canLeaveHospital(int patientId) {
-        List<Record> records = recordService.findByPatientId(patientId);
-        int size = 0;
-        for (Record record : records) {
-            size++;
+    @CrossOrigin
+    @PostMapping("/leaveHospital")
+    @ResponseBody
+    public ResponseEntity<HashMap<String, Object>> updatePatientInfo(@RequestBody LeaveHospitalRequest leaveHospitalRequest) {
+        HashMap<String, Object> map = new HashMap<>();
+        if (patientService.canLeaveHospital(leaveHospitalRequest.getPatientID())) {
+            Patient patient = patientService.findById(leaveHospitalRequest.getPatientID());
+            Bed bed = bedService.findById(patient.getBedId());
+            patient.setStatus(1);
+            patient.setGrade(0);
+            patient.setBedId(-1);
+            patient.setJobNumber(-1);
+            bed.setPatientId(-1);
+            bed.setStatus(0);
+            bedService.getBedRepository().save(bed);
+            patientService.getPatientRepository().save(patient);
+            wNursePatientService.deleteByPatientId(patient.getId());
+            map.put("message", "成功出院");
+            map.put("result", 1);
+        } else {
+            map.put("message", "不满足出院条件");
+            map.put("result", 0);
         }
-        if (size < 3) {
-            return false;
-        }
-        for (int i = size - 1; i > 0; i--) {
-            if (records.get(i).getTemperature() > 37.3) {
-                return false;
-            }
-        }
-        return true;
+        return ResponseEntity.ok(map);
     }
+
 
     @Data
     class PatientInfo {

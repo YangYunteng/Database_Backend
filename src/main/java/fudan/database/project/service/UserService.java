@@ -1,20 +1,24 @@
 package fudan.database.project.service;
 
 import fudan.database.project.domain.User;
+import fudan.database.project.domain.WNursePatient;
 import fudan.database.project.repository.UserRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @Service
 public class UserService {
     private UserRepository userRepository;
+    private WNursePatientService wNursePatientService;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, WNursePatientService wNursePatientService) {
+        this.wNursePatientService = wNursePatientService;
         this.userRepository = userRepository;
     }
 
@@ -45,7 +49,22 @@ public class UserService {
         return userRepository.findAllByWardNumberAndType(wardNumber, type);
     }
 
-    public User findByWardNumberAndType(int wardNumber,int type){
-        return userRepository.findByWardNumberAndType(wardNumber,type);
+    public User findByWardNumberAndType(int wardNumber, int type) {
+        return userRepository.findByWardNumberAndType(wardNumber, type);
+    }
+
+    public List<User> findAllFreeWNurses(int wardNumber) {
+        List<User> tempWNurses = findAllByWardNumberAndType(wardNumber, 3);
+        List<User> wNurses = new ArrayList<>();
+        for (User user : tempWNurses) {
+            if (wNursePatientService.findAllByJobNumber(user.getJobNumber()).size() < 3) {
+                wNurses.add(user);
+            }
+        }
+        return wNurses;
+    }
+
+    public int deleteByJobNumber(int jobNumber){
+        return userRepository.deleteByJobNumber(jobNumber);
     }
 }

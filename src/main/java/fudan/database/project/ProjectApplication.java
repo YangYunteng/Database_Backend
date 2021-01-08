@@ -24,7 +24,7 @@ public class ProjectApplication {
                 final int WARD_NUM = 3;
                 final int DOC_NUM = 1;
                 final int HNURSE_NUM = 1;
-                final int WNURSE_NUM = 3;
+                final int WNURSE_NUM = 1;
                 final int ENURSE_NUM = 1;
                 int jobNumber = 1;
                 final String telepone = "13853725666";
@@ -54,21 +54,37 @@ public class ProjectApplication {
                         userRepository.save(new User("enurse1", "12345", 4, (i + 1), telepone));
                     }
                 }
-
-                final int WardNumber = 3;
-                final int RoomPerWard = 3;
-                final int BedPerRoom = 3;
-
-                for (int i = 1; i <= WardNumber; i++) {
-                    for (int j = 1; j <= RoomPerWard; j++) {
-                        for (int k = 1; k <= BedPerRoom; k++) {
-                            Bed bed = new Bed(k, j, i, 0, -1);
-                            if (bedRepository.findByBedNumberAndRoomNumberAndWardNumber(k, j, i) == null) {
-                                bedRepository.save(bed);
-                            }
+                final int RoomPerWard = 1;
+                final int BedPersServeRoom = 1;
+                final int BedPerMidRoom = 2;
+                final int BedPerLightRoom = 4;
+                //轻度区
+                for (int i = 1; i <= RoomPerWard; i++) {
+                    for (int j = 1; j <= BedPerLightRoom; j++) {
+                        if (bedRepository.findByBedNumberAndRoomNumberAndWardNumber(j, i, 1) == null) {
+                            bedRepository.save(new Bed(j, i, 1, 0, -1));
                         }
                     }
                 }
+                //中度区
+                for (int i = 1; i <= RoomPerWard; i++) {
+                    for (int j = 1; j <= BedPerMidRoom; j++) {
+                        if (bedRepository.findByBedNumberAndRoomNumberAndWardNumber(j, i, 2) == null) {
+                            bedRepository.save(new Bed(j, i, 2, 0, -1));
+                        }
+                    }
+                }
+
+                //重症区一个病房一张床
+                for (int i = 1; i <= RoomPerWard; i++) {
+                    for (int j = 1; j <= BedPersServeRoom; j++) {
+                        if (bedRepository.findByBedNumberAndRoomNumberAndWardNumber(j, i, 3) == null) {
+                            bedRepository.save(new Bed(j, i, 3, 0, -1));
+                        }
+                    }
+                }
+
+
             }
         };
     }

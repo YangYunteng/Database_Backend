@@ -21,4 +21,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findAllByWardNumberAndType(int wardNumber, int type);
 
     User findByWardNumberAndType(int wardNumber, int type);
+
+    int deleteByJobNumber(int jobNumber);
 }

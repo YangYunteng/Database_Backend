@@ -5,10 +5,12 @@ import fudan.database.project.repository.WNursePatientRepository;
 import lombok.Data;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Data
 @Service
+@Transactional
 public class WNursePatientService {
     private WNursePatientRepository wNursePatientRepository;
 
