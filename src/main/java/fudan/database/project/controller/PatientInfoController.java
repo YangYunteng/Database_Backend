@@ -269,6 +269,7 @@ public class PatientInfoController {
         if (status == 3) {
             patientService.patientDead(patient);
         }
+        patientService.getPatientRepository().save(patient);
         patientService.AutoReferral();
         HashMap<String, Object> map = new HashMap<>();
         map.put("message", "修改成功");
