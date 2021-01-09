@@ -45,9 +45,15 @@ public class RecordController {
         int status = recordRequest.getStatus();
         int checkResult = recordRequest.getCheckResult();
         Date date = recordRequest.getDate();
-        Record record = new Record(patientId, temperature, symptoms, status, date);
-        recordService.getRecordRepository().save(record);
-        checkReportService.getCheckReportRepository().save(new CheckReport(patientId, checkResult, date));
+        if (status == 3) {
+            patientService.patientDead(patientService.findById(patientId));
+            patientService.AutoReferral();
+        } else {
+            Record record = new Record(patientId, temperature, symptoms, status, date);
+            recordService.getRecordRepository().save(record);
+            checkReportService.getCheckReportRepository().save(new CheckReport(patientId, checkResult, date));
+        }
+
         if (patientService.canLeaveHospital(patientId)) {
             Patient patient = patientService.findById(patientId);
             User user = userService.findByJobNumber(patient.getJobNumber());
