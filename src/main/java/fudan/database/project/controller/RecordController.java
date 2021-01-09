@@ -48,17 +48,19 @@ public class RecordController {
         Record record = new Record(patientId, temperature, symptoms, status, date);
         recordService.getRecordRepository().save(record);
         checkReportService.getCheckReportRepository().save(new CheckReport(patientId, checkResult, date));
+        if (patientService.canLeaveHospital(patientId)) {
+            Patient patient = patientService.findById(patientId);
+            User user = userService.findByJobNumber(patient.getJobNumber());
+            int wardNumber = user.getWardNumber();
+            Message message = new Message((userService.findByWardNumberAndType(wardNumber, 1)).getJobNumber(), 1);
 
-        Patient patient = patientService.findById(patientId);
-        User user = userService.findByJobNumber(patient.getJobNumber());
-        int wardNumber = user.getWardNumber();
-        Message message = new Message((userService.findByWardNumberAndType(wardNumber, 1)).getJobNumber(), 1);
-        if (wardNumber == 1) {
-            message.setMessage("ID: " + patient.getId() + " Name: " + patient.getName() + " 满足出院条件");
-        } else {
-            message.setMessage("ID: " + patient.getId() + " Name: " + patient.getName() + " 病情好转可以考虑降级");
+            if (wardNumber == 1) {
+                message.setMessage("ID: " + patient.getId() + " Name: " + patient.getName() + " 满足出院条件");
+            } else {
+                message.setMessage("ID: " + patient.getId() + " Name: " + patient.getName() + " 病情好转可以考虑降级");
+            }
+            messageService.getMessageRepository().save(message);
         }
-        messageService.getMessageRepository().save(message);
         HashMap<String, Object> map = new HashMap<>();
         map.put("message", "添加成功");
         map.put("result", 1);

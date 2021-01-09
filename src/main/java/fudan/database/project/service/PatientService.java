@@ -74,8 +74,10 @@ public class PatientService {
         for (int i = 4; i > 0; i--) {
             List<Patient> patients = findWaitingToRefer(i);
             for (Patient patient : patients) {
-                System.out.println(patient.getId());
-                patientRefer(patient);
+                if (patient != null) {
+                    System.out.println(patient.getId());
+                    patientRefer(patient);
+                }
             }
         }
     }

@@ -51,7 +51,7 @@ public class NurseInfoController {
             if (wNursePatients.size() > 0) {
                 int count = 0;
                 for (WNursePatient wNursePatient : wNursePatients) {
-                    patients[count] = patientService.findById(wNursePatient.getPatientId()).getName();
+                    patients[count] = patientService.findById(wNursePatient.getPatientId()).getName()+"  ";
                     count++;
                 }
             }
