@@ -64,7 +64,8 @@ public class PatientService {
         List<Bed> wardBeds = bedService.findAllByWardNumber(wardNumber);
         for (Bed bed : wardBeds) {
             if (bed.getStatus() == 1 && findByBedId(bed.getId()).getGrade() != wardNumber) {
-                patients.add(findByBedId(bed.getPatientId()));
+                Patient patient = findByBedId(bed.getId());
+                patients.add(patient);
             }
         }
         return patients;
@@ -74,10 +75,7 @@ public class PatientService {
         for (int i = 4; i > 0; i--) {
             List<Patient> patients = findWaitingToRefer(i);
             for (Patient patient : patients) {
-                if (patient != null) {
-                    System.out.println(patient.getId());
-                    patientRefer(patient);
-                }
+                patientRefer(patient);
             }
         }
     }
@@ -149,7 +147,7 @@ public class PatientService {
 
         for (int i = size - 2; i >= 0; i--) {
             long startTime = records.get(i).getDate().getTime();
-            System.out.println(lastTime - startTime);
+            // System.out.println(lastTime - startTime);
             if (lastTime - startTime > 0 && lastTime - startTime <= 24 * 60 * 60 * 1000 && records.get(i).getTemperature() < 37.3) {
                 lastTime = startTime;
                 mark++;
@@ -160,7 +158,7 @@ public class PatientService {
                 break;
             }
         }
-        System.out.println("checkReports");
+        //System.out.println("checkReports");
         List<CheckReport> checkReports = checkReportService.findAllPatientID(patientId);
         checkReports.sort(new Comparator<CheckReport>() {
             @Override
@@ -178,7 +176,7 @@ public class PatientService {
         for (CheckReport checkReport : checkReports) {
             size++;
         }
-        System.out.println(size);
+        //System.out.println(size);
         if (size < 2) {
             return false;
         }
@@ -186,11 +184,11 @@ public class PatientService {
             return false;
         }
         lastTime = checkReports.get(size - 1).getDate().getTime();
-        System.out.println(lastTime);
+        //System.out.println(lastTime);
         for (int i = size - 2; i >= 0; i--) {
             int checkResult = checkReports.get(i).getCheckResult();
             long startTime = checkReports.get(i).getDate().getTime();
-            System.out.println(lastTime - startTime);
+            //System.out.println(lastTime - startTime);
             if (checkResult == 2) {
                 return false;
             } else if (lastTime - startTime >= 24 * 60 * 60 * 1000) {
